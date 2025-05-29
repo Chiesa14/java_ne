@@ -1,0 +1,53 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title>Salary Payment Notification</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            line-height: 1.6;
+            color: #333;
+            max-width: 600px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+        .header {
+            background-color: #f8f9fa;
+            padding: 20px;
+            border-radius: 5px;
+            margin-bottom: 20px;
+        }
+        .content {
+            padding: 20px;
+            background-color: #ffffff;
+            border: 1px solid #dee2e6;
+            border-radius: 5px;
+        }
+        .footer {
+            margin-top: 20px;
+            font-size: 12px;
+            color: #6c757d;
+            text-align: center;
+        }
+    </style>
+</head>
+<body>
+    <div class="header">
+        <h2>Salary Payment Notification</h2>
+    </div>
+    
+    <div class="content">
+        <p>Dear <span th:text="${firstName}">Employee</span>,</p>
+        
+        <p>Your salary for <span th:text="${month}">MM</span>/<span th:text="${year}">YYYY</span> from <span th:text="${institutionName}">Institution</span> amounting to <span th:text="${amount}">Amount</span> has been credited to your account <span th:text="${employeeCode}">Employee ID</span> successfully.</p>
+        
+        <p>Thank you for your service.</p>
+    </div>
+    
+    <div class="footer">
+        <p>This is an automated message. Please do not reply to this email.</p>
+        <p>© <span th:text="${#dates.year(#dates.createNow())}">2024</span> <span th:text="${institutionName}">Institution</span>. All rights reserved.</p>
+    </div>
+</body>
+</html> 

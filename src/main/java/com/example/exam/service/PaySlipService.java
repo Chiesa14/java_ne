@@ -7,6 +7,7 @@ import com.example.exam.repository.EmployeeRepository;
 import com.example.exam.repository.EmploymentRepository;
 import com.example.exam.repository.PaySlipRepository;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -15,6 +16,7 @@ import java.util.List;
 import java.util.UUID;
 import java.util.stream.Collectors;
 
+@Slf4j
 @Service
 @RequiredArgsConstructor
 public class PaySlipService {
@@ -22,6 +24,7 @@ public class PaySlipService {
     private final PaySlipRepository paySlipRepository;
     private final EmployeeRepository employeeRepository;
     private final EmploymentRepository employmentRepository;
+    private final EmailService emailService;
 
     @Transactional
     public List<PaySlip> generatePayroll(int month, int year) {
@@ -87,22 +90,46 @@ public class PaySlipService {
         List<PaySlip> pendingPaySlips = paySlipRepository.findByMonthAndYearAndStatus(month, year, PaySlip.Status.PENDING);
         
         for (PaySlip paySlip : pendingPaySlips) {
+            Employee employee = employeeRepository.findById(paySlip.getEmployeeCode())
+                    .orElseThrow(() -> new RuntimeException("Employee not found"));
+
             paySlip.setStatus(PaySlip.Status.PAID);
             paySlipRepository.save(paySlip);
+
+            // Send email notification
+            emailService.sendSalaryNotification(
+                employee.getEmail(),
+                employee.getFirstName(),
+                paySlip.getMonth(),
+                paySlip.getYear(),
+                paySlip.getNetSalary().toString(),
+                employee.getCode().toString()
+            );
         }
     }
 
     @Transactional
-    public void approvePaySlip(Long id) {
+    public PaySlip approvePaySlip(Long id) {
         PaySlip paySlip = paySlipRepository.findById(id)
-                .orElseThrow(() -> new RuntimeException("PaySlip not found with id: " + id));
+                .orElseThrow(() -> new RuntimeException("PaySlip not found"));
 
-        if (paySlip.getStatus() != PaySlip.Status.PENDING) {
-            throw new RuntimeException("PaySlip is not in PENDING status");
-        }
+        Employee employee = employeeRepository.findById(paySlip.getEmployeeCode())
+                .orElseThrow(() -> new RuntimeException("Employee not found"));
 
         paySlip.setStatus(PaySlip.Status.PAID);
-        paySlipRepository.save(paySlip);
+        PaySlip savedPaySlip = paySlipRepository.save(paySlip);
+
+        // Send email notification
+        emailService.sendSalaryNotification(
+            employee.getEmail(),
+            employee.getFirstName(),
+            paySlip.getMonth(),
+            paySlip.getYear(),
+            paySlip.getNetSalary().toString(),
+            employee.getCode().toString()
+        );
+
+        return savedPaySlip;
     }
 
     @Transactional(readOnly = true)
