@@ -1,5 +1,6 @@
 package com.example.exam.entity;
 
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import jakarta.persistence.*;
 import jakarta.validation.constraints.*;
 import lombok.*;
@@ -25,6 +26,7 @@ public class Employment {
     private UUID code;
 
     @ManyToOne(optional = false, fetch = FetchType.LAZY)
+    @JsonIgnoreProperties({"hibernateLazyInitializer", "handler"})
     @JoinColumn(name = "employee_code", nullable = false)
     private Employee employee;
 
