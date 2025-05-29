@@ -42,7 +42,7 @@ public class PaySlipController {
             return ResponseEntity.ok("PaySlip approved successfully");
         } catch (RuntimeException e) {
             return ResponseEntity.badRequest().body(e.getMessage());
-        }
+        }http://localhost:8080/api/payslips/employee/2388ad82-9ee5-4e63-8318-91914068ece4
     }
 
     @GetMapping
